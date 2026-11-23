@@ -1,0 +1,96 @@
+/* app/magazine-theme.css
+   Import AFTER ./globals.css in layout.tsx. Independent of your shadcn token format
+   (works with Tailwind v3 or v4). The dark theme is toggled by the `.dark` class on <html>. */
+
+:root {
+    color-scheme: light;
+    --cm-bg: #f6f8fb;
+    --cm-surface: #ffffff;
+    --cm-surface-2: #eef2f7;
+    --cm-line: #dde4ed;
+    --cm-fg: #0b1626;
+    --cm-fg-2: #3b4d66;
+    --cm-muted: #5a6b82;
+    --cm-brand-text: #c81f31;
+    --cm-rank: #c9d3e0;
+}
+
+.dark {
+    color-scheme: dark;
+    --cm-bg: #0a1220;
+    --cm-surface: #111d30;
+    --cm-surface-2: #182740;
+    --cm-line: #25354f;
+    --cm-fg: #e8edf4;
+    --cm-fg-2: #b4c1d3;
+    --cm-muted: #8fa0b7;
+    --cm-brand-text: #ff6b78;
+    --cm-rank: #33476a;
+}
+
+/* surfaces */
+.cm-bg {
+    background-color: var(--cm-bg);
+}
+.cm-surface {
+    background-color: var(--cm-surface);
+}
+.cm-surface-2 {
+    background-color: var(--cm-surface-2);
+}
+.cm-line-bg {
+    background-color: var(--cm-line);
+}
+.cm-glass {
+    background-color: color-mix(in srgb, var(--cm-surface) 82%, transparent);
+}
+
+/* text */
+.cm-fg {
+    color: var(--cm-fg);
+}
+.cm-fg-2 {
+    color: var(--cm-fg-2);
+}
+.cm-muted {
+    color: var(--cm-muted);
+}
+.cm-brand-text {
+    color: var(--cm-brand-text);
+}
+.cm-rank {
+    color: var(--cm-rank);
+}
+
+/* borders */
+.cm-border {
+    border-color: var(--cm-line);
+}
+
+/* interaction */
+.cm-hover-bg:hover {
+    background-color: var(--cm-bg);
+}
+.cm-hover-surface-2:hover {
+    background-color: var(--cm-surface-2);
+}
+.cm-hover-fg:hover {
+    color: var(--cm-fg);
+}
+.cm-hover-brand:hover {
+    color: var(--cm-brand-text);
+}
+.cm-focus:focus-visible {
+    outline: 2px solid var(--cm-fg);
+    outline-offset: 3px;
+}
+
+/* brand button (same red in both themes; white text passes contrast on it) */
+.cm-btn-brand {
+    background-color: #d62839;
+    color: #fff;
+}
+.cm-btn-brand:hover {
+    background-color: #b81f2e;
+    color: #fff;
+}
