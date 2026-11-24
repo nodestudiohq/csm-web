@@ -4,6 +4,7 @@
 // Colours come from the --cm-* tokens in magazine-theme.css, so the page follows light/dark mode.
 
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Clock, ArrowUpRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +13,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { PodcastSection, type Episode } from '@/components/podcast-section';
 
 // export const revalidate = 60; // ISR; also trigger on-demand revalidation from the API on publish
+
+const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@cybersecuritymagazine'; // replace with the real channel
 
 export const metadata: Metadata = {
     title: { absolute: 'CyberSecurity Magazine | News, analysis and advisories' },
@@ -41,6 +45,7 @@ type Article = {
     publishedAt: string;
     readMinutes: number;
     views: number;
+    image?: string; // photo URL from the CMS; a gradient placeholder is used when missing
 };
 type Advisory = { id: string; product: string; severity: Severity; cvss: number; summary: string };
 
@@ -168,7 +173,52 @@ async function getHomeData() {
         { name: 'Arup Sarkar', slug: 'arup-sarkar', beat: 'Threat intelligence', count: 66 },
     ];
 
-    return { articles, advisories, topics, authors };
+    // `id` is the YouTube video id (the part after ?v=). These are placeholders: replace with real ids.
+    const episodes: Episode[] = [
+        {
+            id: 'VIDEO_ID_1',
+            title: 'Inside the hospital ransomware attack: the first 72 hours',
+            description:
+                'Our reporter and an incident responder walk through the timeline, the missed warning signs and the road to recovery.',
+            duration: '42 min',
+            publishedAt: '2026-11-22T12:00:00Z',
+            cover: 'breaches',
+        },
+        {
+            id: 'VIDEO_ID_2',
+            title: 'Why passkeys are not phishing-proof, and what to do about it',
+            description: 'A threat researcher explains downgrade attacks and the settings that block them.',
+            duration: '35 min',
+            publishedAt: '2026-11-15T12:00:00Z',
+            cover: 'threat-intel',
+        },
+        {
+            id: 'VIDEO_ID_3',
+            title: 'A bank CISO on practising the bad day',
+            description: 'Tabletop exercises, board reporting and how to run an incident without panic.',
+            duration: '51 min',
+            publishedAt: '2026-11-08T12:00:00Z',
+            cover: 'interviews',
+        },
+        {
+            id: 'VIDEO_ID_4',
+            title: 'CERT-In rules explained for small companies',
+            description: 'What the six-hour reporting window means in practice, and how to prepare.',
+            duration: '28 min',
+            publishedAt: '2026-11-01T12:00:00Z',
+            cover: 'policy',
+        },
+        {
+            id: 'VIDEO_ID_5',
+            title: 'Securing your CI pipeline against poisoned packages',
+            description: 'Lockfiles, install scripts and the cheap controls that stop most supply chain attacks.',
+            duration: '39 min',
+            publishedAt: '2026-10-25T12:00:00Z',
+            cover: 'vulnerabilities',
+        },
+    ];
+
+    return { articles, advisories, topics, authors, episodes };
 }
 
 /* ------------------------------ helpers ------------------------------ */
@@ -251,7 +301,7 @@ function SectionHeading({ title, href, linkText }: { title: string; href?: strin
 /* -------------------------------- page -------------------------------- */
 
 export default async function HomePage() {
-    const { articles, advisories, topics, authors } = await getHomeData();
+    const { articles, advisories, topics, authors, episodes } = await getHomeData();
     const [lead, ...rest] = articles;
     const latest = rest.slice(0, 3);
     const mostRead = [...articles].sort((a, b) => b.views - a.views).slice(0, 5);
@@ -378,19 +428,42 @@ export default async function HomePage() {
                         <SectionHeading title="More from the newsroom" />
                         <ul className="cm-border border-y">
                             {rest.slice(3).map((a) => (
-                                <li key={a.slug} className="cm-border group relative border-b py-6 last:border-b-0">
-                                    <p className="cm-brand-text text-sm font-semibold">{a.category.name}</p>
-                                    <h3 className="mt-1 text-xl font-semibold leading-snug [font-family:var(--font-display)] md:text-2xl">
-                                        <Link
-                                            href={`/${a.slug}`}
-                                            className="cm-focus after:absolute after:inset-0 group-hover:underline"
-                                        >
-                                            {a.title}
-                                        </Link>
-                                    </h3>
-                                    <p className="cm-fg-2 mt-2 max-w-2xl">{a.excerpt}</p>
-                                    <div className="mt-3">
-                                        <Meta a={a} />
+                                <li
+                                    key={a.slug}
+                                    className="cm-border group relative flex flex-col gap-4 border-b py-6 last:border-b-0 sm:flex-row sm:gap-6"
+                                >
+                                    {/* Photo: uses the CMS image when present, otherwise a gradient placeholder */}
+                                    {a.image ? (
+                                        <div className="relative aspect-3/2 w-full shrink-0 overflow-hidden rounded-xl sm:w-60">
+                                            <Image
+                                                src={a.image}
+                                                alt=""
+                                                fill
+                                                sizes="(min-width: 640px) 240px, 100vw"
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <Cover
+                                            slug={a.category.slug}
+                                            className="aspect-3/2 w-full shrink-0 rounded-xl sm:w-60"
+                                        />
+                                    )}
+
+                                    <div className="min-w-0">
+                                        <p className="cm-brand-text text-sm font-semibold">{a.category.name}</p>
+                                        <h3 className="mt-1 text-xl font-semibold leading-snug [font-family:var(--font-display)] md:text-2xl">
+                                            <Link
+                                                href={`/${a.slug}`}
+                                                className="cm-focus after:absolute after:inset-0 group-hover:underline"
+                                            >
+                                                {a.title}
+                                            </Link>
+                                        </h3>
+                                        <p className="cm-fg-2 mt-2 max-w-2xl">{a.excerpt}</p>
+                                        <div className="mt-3">
+                                            <Meta a={a} />
+                                        </div>
                                     </div>
                                 </li>
                             ))}
@@ -492,6 +565,9 @@ export default async function HomePage() {
                     ))}
                 </ul>
             </section>
+
+            {/* Podcast (YouTube), 3 / 2 grid, sits above the newsletter */}
+            <PodcastSection episodes={episodes} channelUrl={YOUTUBE_CHANNEL_URL} />
 
             {/* Newsletter (dark band in both themes) */}
             <section
